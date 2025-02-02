@@ -1,0 +1,25 @@
+def seliz(self,root):
+    if not root:
+         return 'null'
+    queue=[]
+    str=""
+    while  queue:
+        node=queue.pop(0)
+        if  not node:
+        str=str+",null"
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+        str=str+f'",#{node.value}"
+    return str
+def dez(self,data):
+    data=data.split(",")
+    while data:
+
+        node_val=data.pop(0)
+
+        if not node_val:
+            return None
+        node=Tree(node_val[1:])
+        node.left=
