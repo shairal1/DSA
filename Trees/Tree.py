@@ -435,6 +435,162 @@ class TreeNode:
         
         return dfs(root, 0)
 
+    # TREE CONSTRUCTION PATTERNS
+    def buildTree_from_inorder_preorder(self, inorder, preorder):
+        """
+        Construct Binary Tree from Inorder and Preorder Traversal
+        
+        Time Complexity: O(n)
+        Space Complexity: O(n)
+        """
+        # Create a hashmap for O(1) lookup of inorder indices
+        inorder_map = {val: idx for idx, val in enumerate(inorder)}
+        pre_idx = 0  # Index for preorder array
+        
+        def build_tree(left, right):
+            nonlocal pre_idx
+            if left > right:
+                return None
+                
+            # Get current root from preorder
+            root_val = preorder[pre_idx]
+            root = TreeNode(root_val)
+            pre_idx += 1
+            
+            # Find root's position in inorder
+            root_idx = inorder_map[root_val]
+            
+            # Build left and right subtrees
+            root.left = build_tree(left, root_idx - 1)
+            root.right = build_tree(root_idx + 1, right)
+            
+            return root 
+        
+        return build_tree(0, len(inorder) - 1)
+
+    def buildTree_from_inorder_postorder(self, inorder, postorder):
+        """
+        Construct Binary Tree from Inorder and Postorder Traversal
+        
+        Time Complexity: O(n)
+        Space Complexity: O(n)
+        """
+        inorder_map = {val: idx for idx, val in enumerate(inorder)}
+        post_idx = len(postorder) - 1  # Start from end of postorder
+        
+        def build_tree(left, right):
+            nonlocal post_idx
+            if left > right:
+                return None
+                
+            # Get current root from postorder
+            root_val = postorder[post_idx]
+            root = TreeNode(root_val)
+            post_idx -= 1
+            
+            # Find root's position in inorder
+            root_idx = inorder_map[root_val]
+            
+            # Build right and left subtrees (note the order)
+            root.right = build_tree(root_idx + 1, right)
+            root.left = build_tree(left, root_idx - 1)
+            
+            return root
+        
+        return build_tree(0, len(inorder) - 1)
+
+    def buildTree_from_levelorder_inorder(self, levelorder, inorder):
+        """
+        Construct Binary Tree from Level Order and Inorder Traversal
+        
+        Time Complexity: O(n²)
+        Space Complexity: O(n)
+        """
+        inorder_map = {val: idx for idx, val in enumerate(inorder)}
+        
+        def build_tree(level, in_left, in_right):
+            if not level or in_left > in_right:
+                return None
+                
+            # Find the first node in level order that appears in inorder
+            root_val = None
+            for val in level:
+                if in_left <= inorder_map[val] <= in_right:
+                    root_val = val
+                    break
+            
+            if root_val is None:
+                return None
+                
+            root = TreeNode(root_val)
+            root_idx = inorder_map[root_val]
+            
+            # Build left and right subtrees
+            root.left = build_tree(level, in_left, root_idx - 1)
+            root.right = build_tree(level, root_idx + 1, in_right)
+            
+            return root
+        
+        return build_tree(levelorder, 0, len(inorder) - 1)
+
+    def sortedArrayToBST(self, nums):
+        """
+        Convert Sorted Array to Balanced BST
+        
+        Time Complexity: O(n)
+        Space Complexity: O(n)
+        """
+        def build_tree(left, right):
+            if left > right:
+                return None
+                
+            # Find middle element
+            mid = (left + right) // 2
+            
+            # Create root node
+            root = TreeNode(nums[mid])
+            
+            # Recursively build left and right subtrees
+            root.left = build_tree(left, mid - 1)
+            root.right = build_tree(mid + 1, right)
+            
+            return root
+        
+        return build_tree(0, len(nums) - 1)
+
+    def buildTree_from_levelorder(self, levelorder):
+        """
+        Construct Binary Tree from Level Order Array
+        -1 represents null node
+        
+        Time Complexity: O(n)
+        Space Complexity: O(n)
+        """
+        if not levelorder or levelorder[0] == -1:
+            return None
+            
+        # Create root node
+        root = TreeNode(levelorder[0])
+        queue = [root]
+        i = 1
+        
+        while queue and i < len(levelorder):
+            node = queue.pop(0)
+            
+            # Left child
+            if i < len(levelorder) and levelorder[i] != -1:
+                node.left = TreeNode(levelorder[i])
+                queue.append(node.left)
+            i += 1
+            
+            # Right child
+            if i < len(levelorder) and levelorder[i] != -1:
+                node.right = TreeNode(levelorder[i])
+                queue.append(node.right)
+            i += 1
+        
+        return root
+
     # 3. TREE PROPERTY TEMPLATES
     def maxDepth(self, root):
         """
@@ -512,6 +668,19 @@ class TreeNode:
         if left and right:
             return root
         return left or right
+    def lowestCommonAncestor_in_BST(self, root, p, q):
+        """
+        Lowest Common Ancestor in BST
+        Time Complexity: O(h) where h is height of tree
+        Space Complexity: O(h)
+        """
+        if not root:    
+            return None
+        if root.value > p.value and root.value > q.value:
+            return self.lowestCommonAncestor_in_BST(root.left, p, q)
+        if root.value < p.value and root.value < q.value:
+            return self.lowestCommonAncestor_in_BST(root.right, p, q)
+        return root
 
     # 7. SERIALIZATION TEMPLATE
     def serialize(self, root):
